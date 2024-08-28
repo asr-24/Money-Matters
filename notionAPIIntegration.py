@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import getCategoryIDs
+import json
 
 load_dotenv()
 INTERNAL_INTEGRATION_SECRET = os.getenv("Internal_Integration_Secret")
@@ -25,11 +26,38 @@ def update_page(page_id: str, data: dict):
 def create_page(data: dict):
     create_url = "https://api.notion.com/v1/pages"
 
-    payload = {"parent": {"database_id": DATABASE_ID}, "properties": data}
+    new_page_data = {
+    "parent": {
+        "database_id": DATABASE_ID
+    },
+    "properties": {
+        "Name": {
+            "title": [
+                {
+                    "text": {
+                        "content": "New Page Title"
+                    }
+                }
+            ]
+        },
+        "Amount": {
+            "number": 1234  # Example number property
+        },
+        "Date": {
+            "date": {
+                "start": "2024-08-27"  # Example date property
+            }}}}
 
-    res = requests.post(create_url, headers=headers, json=payload)
-    # print(res.status_code)
-    return res
+    # Make the POST request to create a new page
+    response = requests.post("https://api.notion.com/v1/pages", headers=headers, data=json.dumps(new_page_data))
+
+    # Check the response
+    if response.status_code == 200:
+        print("Page created successfully!")
+        print(response.json())  # Print the created page details
+    else:
+        print(f"Failed to create page. Status code: {response.status_code}")
+        print(response.text)
 
 def get_pages(num_pages=None):
     """
@@ -62,9 +90,28 @@ def get_pages(num_pages=None):
     # category_relation_id = page['properties']['Category']['relation'][0]['id']
 
     # print(page_id, name, amount, category_relation_id)
-
-    update_data = {"Name": "test 1"}
-
-    print(update_page(page_id, update_data))
  
-get_pages()
+# get_pages()
+
+create_page({
+    "parent": {
+        "database_id": DATABASE_ID
+    },
+    "properties": {
+        "Name": {
+            "title": [
+                {
+                    "text": {
+                        "content": "New Page Title"
+                    }
+                }
+            ]
+        },
+        "Amount": {
+            "number": 1234  # Example number property
+        },
+        "Date": {
+            "date": {
+                "start": "2024-08-27"  # Example date property
+            }}}}
+)
